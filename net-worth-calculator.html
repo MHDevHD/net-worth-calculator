@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Character encoding for proper text display -->
+    <meta charset="UTF-8">
+    <!-- Viewport settings for responsive design on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Net Worth Calculator</title>
+    <style>
+        /* ===================================
+           GLOBAL RESET STYLES
+           =================================== */
+        /* Reset default margins, padding, and use border-box sizing for all elements */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* ===================================
+           BODY AND MAIN CONTAINER STYLES
+           =================================== */
+        /* Main body styling with gradient background */
+        body {
+            /* Use system fonts for native look across different platforms */
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            /* Purple gradient background */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* Ensure body takes at least full viewport height */
+            min-height: 100vh;
+            /* Add padding around edges */
+            padding: 20px;
+        }
+
+        /* Main container that holds all content */
+        .container {
+            /* Maximum width for readability on large screens */
+            max-width: 900px;
+            /* Center the container horizontally */
+            margin: 0 auto;
+            /* White background for content area */
+            background: white;
+            /* Rounded corners */
+            border-radius: 20px;
+            /* Elevated shadow effect */
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            /* Hide any content that extends beyond rounded corners */
+            overflow: hidden;
+        }
+
+        /* ===================================
+           HEADER SECTION STYLES
+           =================================== */
+        /* Header section with gradient background matching body */
+        .header {
+            /* Gradient background matching the body theme */
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            /* White text for contrast against dark background */
+            color: white;
+            /* Padding for spacing */
+            padding: 30px;
+            /* Center align all text in header */
+            text-align: center;
+        }
+
+        /* Main heading in header */
+        .header h1 {
+            /* Large font size for prominence */
+            font-size: 2em;
+            /* Space below heading */
+            margin-bottom: 10px;
+        }
+
+        /* Container for the main net worth display */
+        .net-worth-display {
+            /* Semi-transparent white background for layered effect */
+            background: rgba(255,255,255,0.2);
+            /* Internal spacing */
+            padding: 20px;
+            /* Rounded corners */
+            border-radius: 10px;
+            /* Space above the display */
+            margin-top: 20px;
+        }
+
+        /* Label for net worth display */
+        .net-worth-display h2 {
+            /* Slightly smaller than main heading */
+            font-size: 1.2em;
+            /* Slightly transparent for hierarchy */
+            opacity: 0.9;
+            /* Space below label */
+            margin-bottom: 10px;
+        }
+
+        /* The actual net worth amount display */
+        .net-worth-amount {
+            /* Very large font for emphasis */
+            font-size: 2.5em;
+            /* Bold for importance */
+            font-weight: bold;
+        }
+
+        /* ===================================
+           CONTENT AREA STYLES
+           =================================== */
+        /* Main content area below header */
+        .content {
+            /* Padding around all content */
+            padding: 30px;
+        }
+
+        /* Individual section (Assets or Liabilities) */
+        .section {
+            /* Space below each section */
+            margin-bottom: 40px;
+        }
+
+        /* Header row of each section containing title and total */
+        .section-header {
+            /* Flexbox for horizontal layout */
+            display: flex;
+            /* Space between title and total */
+            justify-content: space-between;
+            /* Vertically center items */
+            align-items: center;
+            /* Space below header */
+            margin-bottom: 20px;
+            /* Space below for border */
+            padding-bottom: 10px;
+            /* Bottom border to separate header from items */
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        /* Section title (e.g., "Assets", "Liabilities") */
+        .section-title {
+            /* Large font for section heading */
+            font-size: 1.5em;
+            /* Semi-bold weight */
+            font-weight: 600;
+            /* Dark gray color */
+            color: #333;
+        }
+
+        /* Section total amount display */
+        .section-total {
+            /* Prominent font size */
+            font-size: 1.3em;
+            /* Semi-bold weight */
+            font-weight: 600;
+            /* Brand color matching theme */
+            color: #667eea;
+        }
+
+        /* ===================================
+           ITEM ROW STYLES
+           =================================== */
+        /* Individual item row (asset or liability) */
+        .item {
+            /* Grid layout: name field, value field, delete button */
+            display: grid;
+            /* Three columns: name (flexible), value (150px), delete (40px) */
+            grid-template-columns: 1fr 150px 40px;
+            /* Space between grid items */
+            gap: 15px;
+            /* Space below each item */
+            margin-bottom: 15px;
+            /* Internal spacing */
+            padding: 15px;
+            /* Light gray background */
+            background: #f8f9fa;
+            /* Rounded corners */
+            border-radius: 10px;
+            /* Vertically center all items in the grid */
+            align-items: center;
+        }
+
+        /* Text and number input fields */
+        input[type="text"], input[type="number"] {
+            /* Internal padding for comfort */
+            padding: 12px;
+            /* Border around inputs */
+            border: 2px solid #e0e0e0;
+            /* Rounded corners */
+            border-radius: 8px;
+            /* Standard font size */
+            font-size: 1em;
+            /* Smooth transition for border color on focus */
+            transition: border-color 0.3s;
+        }
+
+        /* Input field focus state */
+        input[type="text"]:focus, input[type="number"]:focus {
+            /* Remove default browser outline */
+            outline: none;
+            /* Change border to brand color when focused */
+            border-color: #667eea;
+        }
+
+        /* ===================================
+           BUTTON STYLES
+           =================================== */
+        /* Delete button (X) for removing items */
+        .delete-btn {
+            /* Red background for delete action */
+            background: #ff4757;
+            /* White text/icon */
+            color: white;
+            /* Remove default button border */
+            border: none;
+            /* Square button dimensions */
+            width: 40px;
+            height: 40px;
+            /* Rounded corners */
+            border-radius: 8px;
+            /* Pointer cursor on hover */
+            cursor: pointer;
+            /* Larger font for X symbol */
+            font-size: 1.2em;
+            /* Smooth color transition on hover */
+            transition: background 0.3s;
+        }
+
+        /* Delete button hover state */
+        .delete-btn:hover {
+            /* Darker red on hover */
+            background: #ff3838;
+        }
+
+        /* Add button for adding new items */
+        .add-btn {
+            /* Brand color background */
+            background: #667eea;
+            /* White text */
+            color: white;
+            /* Remove default button border */
+            border: none;
+            /* Comfortable padding */
+            padding: 12px 24px;
+            /* Rounded corners */
+            border-radius: 8px;
+            /* Pointer cursor on hover */
+            cursor: pointer;
+            /* Standard font size */
+            font-size: 1em;
+            /* Semi-bold text */
+            font-weight: 600;
+            /* Smooth color transition on hover */
+            transition: background 0.3s;
+        }
+
+        /* Add button hover state */
+        .add-btn:hover {
+            /* Darker shade on hover */
+            background: #5568d3;
+        }
+
+        /* ===================================
+           ACTION BUTTONS SECTION
+           =================================== */
+        /* Container for action buttons (Export, Import, Clear) */
+        .actions {
+            /* Flexbox for horizontal layout */
+            display: flex;
+            /* Space between buttons */
+            gap: 15px;
+            /* Center buttons horizontally */
+            justify-content: center;
+            /* Space above actions section */
+            margin-top: 30px;
+            /* Space above for border */
+            padding-top: 30px;
+            /* Top border to separate from main content */
+            border-top: 2px solid #e0e0e0;
+        }
+
+        /* Base styling for all action buttons */
+        .action-btn {
+            /* Comfortable padding */
+            padding: 12px 30px;
+            /* Rounded corners */
+            border-radius: 8px;
+            /* Remove default button border */
+            border: none;
+            /* Standard font size */
+            font-size: 1em;
+            /* Semi-bold text */
+            font-weight: 600;
+            /* Pointer cursor on hover */
+            cursor: pointer;
+            /* Smooth transitions for all properties */
+            transition: all 0.3s;
+        }
+
+        /* Export button - green color scheme */
+        .export-btn {
+            /* Green background for export action */
+            background: #2ecc71;
+            /* White text */
+            color: white;
+        }
+
+        /* Export button hover state */
+        .export-btn:hover {
+            /* Darker green on hover */
+            background: #27ae60;
+        }
+
+        /* Import button - blue color scheme */
+        .import-btn {
+            /* Blue background for import action */
+            background: #3498db;
+            /* White text */
+            color: white;
+        }
+
+        /* Import button hover state */
+        .import-btn:hover {
+            /* Darker blue on hover */
+            background: #2980b9;
+        }
+
+        /* Clear button - red color scheme */
+        .clear-btn {
+            /* Red background for destructive action */
+            background: #e74c3c;
+            /* White text */
+            color: white;
+        }
+
+        /* Clear button hover state */
+        .clear-btn:hover {
+            /* Darker red on hover */
+            background: #c0392b;
+        }
+
+        /* Hidden file input for import functionality */
+        #importFile {
+            /* Hide the default file input visually */
+            display: none;
+        }
+
+        /* ===================================
+           SUMMARY CARDS SECTION
+           =================================== */
+        /* Container for summary cards (Total Assets, Total Liabilities) */
+        .summary {
+            /* Grid layout for responsive cards */
+            display: grid;
+            /* Auto-fit columns with minimum 200px width */
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            /* Space between cards */
+            gap: 20px;
+            /* Space below summary section */
+            margin-bottom: 30px;
+        }
+
+        /* Individual summary card */
+        .summary-card {
+            /* Default gradient (for net worth card if added) */
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            /* White text for contrast */
+            color: white;
+            /* Internal spacing */
+            padding: 20px;
+            /* Rounded corners */
+            border-radius: 10px;
+            /* Center all text */
+            text-align: center;
+        }
+
+        /* Assets card - blue gradient */
+        .summary-card.assets {
+            /* Blue gradient for assets */
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+
+        /* Liabilities card - orange/yellow gradient */
+        .summary-card.liabilities {
+            /* Warm gradient for liabilities */
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+
+        /* Card heading/label */
+        .summary-card h3 {
+            /* Smaller font for label */
+            font-size: 0.9em;
+            /* Slightly transparent */
+            opacity: 0.9;
+            /* Space below label */
+            margin-bottom: 10px;
+        }
+
+        /* Card amount display */
+        .summary-card .amount {
+            /* Large font for emphasis */
+            font-size: 1.8em;
+            /* Bold for importance */
+            font-weight: bold;
+        }
+
+        /* ===================================
+           RESPONSIVE DESIGN - MOBILE
+           =================================== */
+        /* Media query for screens 600px and smaller (mobile devices) */
+        @media (max-width: 600px) {
+            /* Stack item fields vertically on mobile */
+            .item {
+                /* Single column layout for mobile */
+                grid-template-columns: 1fr;
+            }
+
+            /* Stack action buttons vertically on mobile */
+            .actions {
+                /* Column layout for buttons */
+                flex-direction: column;
+            }
+
+            /* Full width buttons on mobile */
+            .action-btn {
+                /* Each button takes full width */
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- ===================================
+         MAIN APPLICATION CONTAINER
+         =================================== -->
+    <!-- Main container holding entire application -->
+    <div class="container">
+        <!-- ===================================
+             HEADER SECTION
+             =================================== -->
+        <!-- Header with title and net worth display -->
+        <div class="header">
+            <!-- Main application title with emoji -->
+            <h1>💰 Net Worth Calculator</h1>
+            <!-- Net worth display card -->
+            <div class="net-worth-display">
+                <!-- Label for net worth -->
+                <h2>Your Net Worth</h2>
+                <!-- Dynamic net worth amount (updated by JavaScript) -->
+                <div class="net-worth-amount" id="netWorth">$0.00</div>
+            </div>
+        </div>
+
+        <!-- ===================================
+             MAIN CONTENT AREA
+             =================================== -->
+        <!-- Main content area containing all sections -->
+        <div class="content">
+            <!-- ===================================
+                 SUMMARY CARDS
+                 =================================== -->
+            <!-- Summary section with total assets and liabilities cards -->
+            <div class="summary">
+                <!-- Assets summary card -->
+                <div class="summary-card assets">
+                    <!-- Card label -->
+                    <h3>Total Assets</h3>
+                    <!-- Dynamic total assets amount (updated by JavaScript) -->
+                    <div class="amount" id="totalAssets">$0.00</div>
+                </div>
+                <!-- Liabilities summary card -->
+                <div class="summary-card liabilities">
+                    <!-- Card label -->
+                    <h3>Total Liabilities</h3>
+                    <!-- Dynamic total liabilities amount (updated by JavaScript) -->
+                    <div class="amount" id="totalLiabilities">$0.00</div>
+                </div>
+            </div>
+
+            <!-- ===================================
+                 ASSETS SECTION
+                 =================================== -->
+            <!-- Assets section containing all asset items -->
+            <div class="section">
+                <!-- Section header with title and total -->
+                <div class="section-header">
+                    <!-- Section title -->
+                    <span class="section-title">Assets</span>
+                    <!-- Dynamic assets total (updated by JavaScript) -->
+                    <span class="section-total" id="assetsTotal">$0.00</span>
+                </div>
+                <!-- Container for asset items (populated by JavaScript) -->
+                <div id="assetsList"></div>
+                <!-- Button to add new asset, calls addItem('assets') function -->
+                <button class="add-btn" onclick="addItem('assets')">+ Add Asset</button>
+            </div>
+
+            <!-- ===================================
+                 LIABILITIES SECTION
+                 =================================== -->
+            <!-- Liabilities section containing all liability items -->
+            <div class="section">
+                <!-- Section header with title and total -->
+                <div class="section-header">
+                    <!-- Section title -->
+                    <span class="section-title">Liabilities</span>
+                    <!-- Dynamic liabilities total (updated by JavaScript) -->
+                    <span class="section-total" id="liabilitiesTotal">$0.00</span>
+                </div>
+                <!-- Container for liability items (populated by JavaScript) -->
+                <div id="liabilitiesList"></div>
+                <!-- Button to add new liability, calls addItem('liabilities') function -->
+                <button class="add-btn" onclick="addItem('liabilities')">+ Add Liability</button>
+            </div>
+
+            <!-- ===================================
+                 ACTION BUTTONS
+                 =================================== -->
+            <!-- Actions section containing export, import, and clear buttons -->
+            <div class="actions">
+                <!-- Export button - downloads data as JSON file -->
+                <button class="action-btn export-btn" onclick="exportData()">📥 Export JSON</button>
+                <!-- Import button - triggers hidden file input when clicked -->
+                <button class="action-btn import-btn" onclick="document.getElementById('importFile').click()">📤 Import JSON</button>
+                <!-- Clear button - deletes all data after confirmation -->
+                <button class="action-btn clear-btn" onclick="clearAll()">🗑️ Clear All</button>
+            </div>
+            <!-- Hidden file input for importing JSON files -->
+            <!-- Accepts only .json files, triggers importData() when file is selected -->
+            <input type="file" id="importFile" accept=".json" onchange="importData(event)">
+        </div>
+    </div>
+
+    <!-- ===================================
+         JAVASCRIPT APPLICATION LOGIC
+         =================================== -->
+    <script>
+        /* ===================================
+           DATA STRUCTURE AND INITIALIZATION
+           =================================== */
+        
+        /**
+         * Main data structure storing all assets and liabilities
+         * Structure: {
+         *   assets: [{id: timestamp, name: string, value: number}, ...],
+         *   liabilities: [{id: timestamp, name: string, value: number}, ...]
+         * }
+         */
+        let data = {
+            assets: [],
+            liabilities: []
+        };
+
+        /**
+         * Initialize the application
+         * Called when page loads
+         * Loads cached data from localStorage and renders the UI
+         */
+        function init() {
+            loadFromCache();  // Load saved data from browser storage
+            renderAll();       // Render all sections and calculate totals
+        }
+
+        /* ===================================
+           ITEM MANAGEMENT FUNCTIONS
+           =================================== */
+        
+        /**
+         * Add a new item to either assets or liabilities
+         * @param {string} type - Either 'assets' or 'liabilities'
+         * Creates a new item with unique ID (timestamp), empty name, and 0 value
+         */
+        function addItem(type) {
+            // Create new item object with unique timestamp ID
+            const item = {
+                id: Date.now(),      // Unique ID based on current timestamp
+                name: '',            // Empty name to be filled by user
+                value: 0             // Default value of 0
+            };
+            // Add item to appropriate array (assets or liabilities)
+            data[type].push(item);
+            // Save updated data to localStorage
+            saveToCache();
+            // Re-render UI to show new item
+            renderAll();
+        }
+
+        /**
+         * Delete an item from either assets or liabilities
+         * @param {string} type - Either 'assets' or 'liabilities'
+         * @param {number} id - Unique ID of the item to delete
+         * Filters out the item with matching ID from the array
+         */
+        function deleteItem(type, id) {
+            // Filter out the item with matching ID
+            data[type] = data[type].filter(item => item.id !== id);
+            // Save updated data to localStorage
+            saveToCache();
+            // Re-render UI to reflect deletion
+            renderAll();
+        }
+
+        /**
+         * Update a field of an existing item
+         * @param {string} type - Either 'assets' or 'liabilities'
+         * @param {number} id - Unique ID of the item to update
+         * @param {string} field - Field name to update ('name' or 'value')
+         * @param {string|number} value - New value for the field
+         * Updates the specified field and recalculates totals
+         */
+        function updateItem(type, id, field, value) {
+            // Find the item with matching ID
+            const item = data[type].find(item => item.id === id);
+            if (item) {
+                // Update the field
+                if (field === 'value') {
+                    // Parse value as float for numeric fields, default to 0 if invalid
+                    item[field] = parseFloat(value) || 0;
+                } else {
+                    // Direct assignment for string fields
+                    item[field] = value;
+                }
+                // Save updated data to localStorage
+                saveToCache();
+                // Recalculate and update totals display
+                calculateTotals();
+            }
+        }
+
+        /* ===================================
+           RENDERING FUNCTIONS
+           =================================== */
+        
+        /**
+         * Render all sections of the application
+         * Renders both assets and liabilities sections
+         * Calculates and displays all totals
+         */
+        function renderAll() {
+            renderSection('assets');      // Render assets section
+            renderSection('liabilities'); // Render liabilities section
+            calculateTotals();            // Calculate and display totals
+        }
+
+        /**
+         * Render a specific section (assets or liabilities)
+         * @param {string} type - Either 'assets' or 'liabilities'
+         * Dynamically creates HTML elements for each item in the section
+         */
+        function renderSection(type) {
+            // Get the container element for this section
+            const container = document.getElementById(`${type}List`);
+            // Clear existing content
+            container.innerHTML = '';
+
+            // Loop through each item in the data array
+            data[type].forEach(item => {
+                // Create a new div element for this item
+                const itemDiv = document.createElement('div');
+                itemDiv.className = 'item';
+                // Set the HTML content with input fields and delete button
+                itemDiv.innerHTML = `
+                    <input type="text" 
+                           placeholder="${type === 'assets' ? 'Asset name (e.g., Savings Account)' : 'Liability name (e.g., Credit Card)'}" 
+                           value="${item.name}"
+                           onchange="updateItem('${type}', ${item.id}, 'name', this.value)">
+                    <input type="number" 
+                           placeholder="0.00" 
+                           value="${item.value || ''}"
+                           step="0.01"
+                           onchange="updateItem('${type}', ${item.id}, 'value', this.value)">
+                    <button class="delete-btn" onclick="deleteItem('${type}', ${item.id})">×</button>
+                `;
+                // Append the item to the container
+                container.appendChild(itemDiv);
+            });
+        }
+
+        /* ===================================
+           CALCULATION AND FORMATTING
+           =================================== */
+        
+        /**
+         * Calculate all totals and update the display
+         * Calculates: assets total, liabilities total, and net worth
+         * Updates all relevant DOM elements with formatted currency values
+         */
+        function calculateTotals() {
+            // Sum all asset values using reduce
+            // reduce adds each item's value to the running sum, starting at 0
+            const assetsTotal = data.assets.reduce((sum, item) => sum + (item.value || 0), 0);
+            
+            // Sum all liability values
+            const liabilitiesTotal = data.liabilities.reduce((sum, item) => sum + (item.value || 0), 0);
+            
+            // Calculate net worth (assets minus liabilities)
+            const netWorth = assetsTotal - liabilitiesTotal;
+
+            // Update all display elements with formatted currency values
+            document.getElementById('assetsTotal').textContent = formatCurrency(assetsTotal);
+            document.getElementById('liabilitiesTotal').textContent = formatCurrency(liabilitiesTotal);
+            document.getElementById('totalAssets').textContent = formatCurrency(assetsTotal);
+            document.getElementById('totalLiabilities').textContent = formatCurrency(liabilitiesTotal);
+            document.getElementById('netWorth').textContent = formatCurrency(netWorth);
+        }
+
+        /**
+         * Format a number as US currency
+         * @param {number} amount - The amount to format
+         * @returns {string} Formatted currency string (e.g., "$1,234.56")
+         * Uses Intl.NumberFormat for proper locale-specific formatting
+         */
+        function formatCurrency(amount) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',  // Format as currency
+                currency: 'USD'     // Use US Dollars
+            }).format(amount);
+        }
+
+        /* ===================================
+           BROWSER STORAGE (CACHING) FUNCTIONS
+           =================================== */
+        
+        /**
+         * Save current data to browser's localStorage
+         * Provides persistence between sessions
+         * Data is stored as JSON string under key 'netWorthData'
+         */
+        function saveToCache() {
+            try {
+                // Convert data object to JSON string and store in localStorage
+                localStorage.setItem('netWorthData', JSON.stringify(data));
+            } catch (e) {
+                // Log error if storage fails (e.g., quota exceeded, private browsing)
+                console.error('Failed to save to cache:', e);
+            }
+        }
+
+        /**
+         * Load data from browser's localStorage
+         * Called on initialization to restore previous session
+         * If no data exists, leaves the default empty structure
+         */
+        function loadFromCache() {
+            try {
+                // Retrieve JSON string from localStorage
+                const cached = localStorage.getItem('netWorthData');
+                if (cached) {
+                    // Parse JSON string and restore data
+                    data = JSON.parse(cached);
+                }
+            } catch (e) {
+                // Log error if loading fails (e.g., corrupted data, parse error)
+                console.error('Failed to load from cache:', e);
+            }
+        }
+
+        /* ===================================
+           IMPORT/EXPORT FUNCTIONS
+           =================================== */
+        
+        /**
+         * Export current data to a JSON file
+         * Creates a downloadable JSON file with timestamp in filename
+         * Allows users to backup their data externally
+         */
+        function exportData() {
+            // Convert data object to formatted JSON string (with 2-space indentation)
+            const dataStr = JSON.stringify(data, null, 2);
+            
+            // Create a Blob (binary large object) from the JSON string
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            
+            // Create a temporary URL for the Blob
+            const url = URL.createObjectURL(dataBlob);
+            
+            // Create a temporary anchor element for downloading
+            const link = document.createElement('a');
+            link.href = url;
+            // Set filename with current date (e.g., net-worth-2024-03-15.json)
+            link.download = `net-worth-${new Date().toISOString().split('T')[0]}.json`;
+            
+            // Temporarily add link to DOM, click it, then remove it
+            document.body.appendChild(link);
+            link.click();  // Trigger download
+            document.body.removeChild(link);
+            
+            // Clean up: release the temporary URL
+            URL.revokeObjectURL(url);
+        }
+
+        /**
+         * Import data from a JSON file
+         * @param {Event} event - File input change event
+         * Validates the file structure before importing
+         * Replaces current data with imported data after confirmation
+         */
+        function importData(event) {
+            // Get the selected file from the file input
+            const file = event.target.files[0];
+            if (!file) return;  // Exit if no file selected
+
+            // Create a FileReader to read the file contents
+            const reader = new FileReader();
+            
+            // Define what happens when file is successfully read
+            reader.onload = function(e) {
+                try {
+                    // Parse the JSON file contents
+                    const importedData = JSON.parse(e.target.result);
+                    
+                    // Validate that the imported data has the correct structure
+                    // Must have both 'assets' and 'liabilities' arrays
+                    if (importedData.assets && importedData.liabilities && 
+                        Array.isArray(importedData.assets) && 
+                        Array.isArray(importedData.liabilities)) {
+                        
+                        // Confirm with user before replacing existing data
+                        if (confirm('This will replace your current data. Continue?')) {
+                            // Replace current data with imported data
+                            data = importedData;
+                            // Save to localStorage
+                            saveToCache();
+                            // Re-render the UI with imported data
+                            renderAll();
+                            // Notify user of success
+                            alert('Data imported successfully!');
+                        }
+                    } else {
+                        // Alert user if file structure is invalid
+                        alert('Invalid file format. Please upload a valid net worth JSON file.');
+                    }
+                } catch (error) {
+                    // Alert user if JSON parsing fails
+                    alert('Error reading file. Please make sure it\'s a valid JSON file.');
+                    console.error('Import error:', error);
+                }
+            };
+            
+            // Read the file as text
+            reader.readAsText(file);
+            
+            // Reset the file input so the same file can be selected again
+            event.target.value = '';
+        }
+
+        /**
+         * Clear all data (assets and liabilities)
+         * Prompts user for confirmation before deleting
+         * Resets data structure to empty arrays
+         */
+        function clearAll() {
+            // Confirm with user before destructive action
+            if (confirm('Are you sure you want to clear all data? This cannot be undone.')) {
+                // Reset data to empty structure
+                data = {
+                    assets: [],
+                    liabilities: []
+                };
+                // Save empty data to localStorage
+                saveToCache();
+                // Re-render UI to show empty state
+                renderAll();
+            }
+        }
+
+        /* ===================================
+           APPLICATION INITIALIZATION
+           =================================== */
+        
+        /**
+         * Initialize the application when page loads
+         * This is the entry point of the application
+         */
+        init();
+    </script>
+</body>
+</html>
