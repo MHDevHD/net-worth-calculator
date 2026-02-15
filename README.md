@@ -18,3 +18,5 @@ Everything is saved to the browser cache on your device
 Export your data as JSON
 
 Import it back later (or on another computer)
+
+This is part of an article https://medium.com/@Michael-H/b66017fc95f0
